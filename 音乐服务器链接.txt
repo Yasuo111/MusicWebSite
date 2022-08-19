@@ -1,0 +1,53 @@
+	
+
+	/*******  音乐查询服务器 ******/
+	请求地址：https://autumnfish.cn/search
+	请求方法：get
+	请求参数：keywords+(查询关键字)
+	响应内容：歌曲的很多内容：比如歌曲的id、mvid、name名称等等...
+
+
+	/******  歌曲地址 *******/
+	请求地址：https://autumnfish.cn/song/url
+	请求方法：get
+	请求参数：id+(歌曲id)
+	响应内容：歌曲url地址（播放音乐）
+		
+
+	/******  歌曲详情获取  *****/
+	请求地址：https://autumnfish.cn/song/detail
+	请求方法：get
+	请求参数：ids+(歌曲id)
+	响应内容：歌曲详情（包括封面信息）
+	
+
+	/******  歌曲评论  ******/
+	请求地址：https://autumnfish.cn/comment/hot
+	请求方法：get
+	请求参数：type=0(固定参数) id+(歌曲id)
+	响应内容：歌曲评论
+
+
+	/*****  歌曲MV  *****/
+	请求地址：https://autumnfish.cn/mv/url
+	请求方法：get
+	请求参数：id(mvid,为0表示没有mv)
+	响应内容：mv的地址
+
+https://github.com/Binaryify/NeteaseCloudMusicApi
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

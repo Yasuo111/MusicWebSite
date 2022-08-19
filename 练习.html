@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="./js/axios.mis.js"></script>
+    <script src="./js/jquery.js"></script>
+</head>
+
+<body>
+
+    <script>
+        axios.get('https://autumnfish.cn/search', {
+            params: {
+                keywords: '像鱼'
+            }
+        }).then(function(res) {
+            console.log(res);
+        });
+
+
+        $(function() {
+
+            /* $.ajax({
+                url: 'https://autumnfish.cn/search?keywords=像鱼',
+                dataType: 'jsonp',
+                success: function(err) {
+                    console.log(err);
+                }
+            }) */
+
+        });
+    </script>
+</body>
+
+</html>

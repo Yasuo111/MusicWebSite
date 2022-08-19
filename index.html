@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>搜索音乐</title>
+    <link rel="stylesheet" href="./css/index.css">
+    <script src="./lib/jquery.js"></script>
+    <script src="./lib/template-web.js"></script>
+</head>
+
+<body>
+    <div id="app">
+        <div class="Bigbox">
+            <div class="Middlebox">
+                <input type="text" placeholder="搜索想听的哟" id="search">
+                <button><img src="img/搜索.png" alt=""></button>
+            </div>
+        </div>
+        <div class="musicBox">
+            <div class="musicBox_firstline">
+                <p class="seenter">单曲</p>
+                <p>歌单</p>
+                <p>MV</p>
+            </div>
+
+            <div class="musicBox-Thesecondline">
+                <p>搜索到 <span>"内容"</span> 相关的歌曲</p>
+                <button>播放</button>
+            </div>
+
+            <div class="musicBox-Thethirdline">
+                <div class="Thethirdline01">
+                    <p style="margin-left: 20px;">歌曲名</p>
+                </div>
+                <div class="Thethirdline02">
+                    <p style="margin-left: 10px;">专辑</p>
+                </div>
+                <div class="Thethirdline03">
+                    <p style="float: right; margin-right: 20px;">时长</p>
+                </div>
+            </div>
+
+            <ul class="musicBox-Thefourthline" id="TheSongList">
+                <!-- 生成li标签 -->
+                <!-- <li>
+                    <div>
+                        <p>{{item.name}}</p>
+                    </div>
+                    <div>
+                        <p>《{{item.name}}》</p>
+                    </div>
+                    <div>
+                        <img src="img/播放.png" class="liimg" alt="">
+                        <img src="img/播放02.png" alt="" class="liimg">
+                        <p>04:45</p>
+                    </div>
+                </li> -->
+            </ul>
+        </div>
+
+        <div class="Bigbox02">
+            <div class="Bigbox02-Middle">
+                <img alt="" class="picture">
+                <audio class="audioS" controls autoplay loop src="">该浏览器不支持视频播放</audio>
+            </div>
+        </div>
+
+        <div class="comment">
+            <h1>热门评论</h1>
+            <ul class="commentnav">
+                <li v-for="item in commentarr">
+                    <div class="commentnav-div01">
+                        <img :src="item.user.avatarUrl" alt="">
+                        <p>{{item.user.nickname}}</p>
+                    </div>
+                    <div class="commentnav-div02">{{item.content}}</div>
+                </li>
+            </ul>
+        </div>
+
+        <div class="mask-box" v-if="MVfalg">
+            <div class="mask" @click="MVclick"></div>
+            <video src="" autoplay="false" controls="controls" id="MVvideo"></video>
+        </div>
+    </div>
+
+    <script id="structure" type="text/html">
+        {{each result.songs}}
+        <li>
+            <div>
+                <p>{{$value.name}}</p>
+            </div>
+            <div>
+                <p>《{{$value.name}}》</p>
+            </div>
+            <div>
+                <img src="img/播放.png" class="liimg" alt="" data-id={{$value.id}} id="play">
+                <img src="img/播放02.png" alt="" class="liimg" id="MV" data-MV={{$value.mvid}}>
+                <p>04:45</p>
+            </div>
+        </li>
+        {{/each}}
+    </script>
+
+    <script>
+        $(function() {
+
+            // 回车查询歌曲
+            $("#search").on('keyup', function(e) {
+                if (e.keyCode != 13) {
+                    return;
+                }
+
+                let val = $(this).val();
+
+                $('.musicBox-Thesecondline').find('span').html(val);
+
+                // 请求，歌曲服务器，获取id
+                $.ajax({
+                    type: 'GET',
+                    url: 'https://autumnfish.cn/search',
+                    data: {
+                        keywords: val
+                    },
+                    success: function(res) {
+                        apply(res);
+                        $('#search').val('');
+                    }
+                });
+            });
+
+            // 鼠标经过事件
+            $('#TheSongList').on('mouseover', 'li', function() {
+                let MVid = $(this).find('#MV').attr('data-MV');
+                if (MVid == '0') {
+                    $(this).find('#play').show();
+                    $(this).find('#MV').hide();
+                } else {
+                    $(this).find('.liimg').show();
+                }
+            });
+            $('#TheSongList').on('mouseout', 'li', function() {
+                $(this).find('.liimg').hide();
+            });
+
+            // 渲染歌曲
+            function apply(data) {
+                let Strhtml = template('structure', data);
+                $('#TheSongList').html(Strhtml);
+            }
+
+            // 点击播放按钮
+            $('#TheSongList').on('click', '#play', function() {
+                let musicId = $(this).attr('data-id');
+                // 发起请求，获取歌曲的url地址
+                $.ajax({
+                    type: 'GET',
+                    url: 'https://autumnfish.cn/song/url',
+                    data: {
+                        id: musicId
+                    },
+                    success: function(res) {
+                        $('.audioS').prop('src', res.data[0].url);
+                    }
+                });
+
+
+                // 发起请求，获取歌曲的图片
+                $.ajax({
+                    type: 'GET',
+                    url: 'https://autumnfish.cn/song/detail',
+                    data: {
+                        ids: musicId
+                    },
+                    success: function(res) {
+                        $('.picture').prop('src', res.songs[0].al.picUrl);
+                        // console.log(res);
+                    }
+                })
+
+            });
+
+
+            // 点击MV视频按钮
+            $('#TheSongList').on('click', '#MV', function() {
+                let dataMvid = $(this).attr('data-MV');
+
+                $.ajax({
+                    type: 'GET',
+                    url: 'https://autumnfish.cn/mv/url',
+                    data: {
+                        id: dataMvid
+                    },
+                    success: function(res) {
+                        console.log();
+                        $('#MVvideo').show();
+                        $('#MVvideo').prop('src', res.data.url);
+                        $('.mask').show();
+                        $('.audioS')[0].pause();
+                    }
+                });
+            });
+
+            // 点击关闭MV
+            $('.mask').on('click', function() {
+                $('.mask').hide();
+                $('#MVvideo').hide();
+                $('#MVvideo')[0].pause();
+            });
+
+        });
+
+        // 以下是控制音频和视频的方法，这些都是原生js的方法。
+        /*  play(); //播放
+
+         pause(); //暂停
+
+         pause(); //停止
+
+         currentTime = 0; //停止
+
+         play(); //重新播放
+         
+         currentTime = 0; //重新播放 */
+    </script>
+
+
+</body>
+
+</html>
